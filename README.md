@@ -6,7 +6,7 @@
 - Automated Nginx reverse proxy
 
 ## Prerequisites
-- Raspberry Pi - Rpi 4 + 8GB preferred
+- Raspberry Pi - RPi 4 + 8GB preferred
 - MicroSD card - 32GB+ preferred
 - Cloudflare and Cloudflare Teams account
 
@@ -20,7 +20,7 @@
         cd /Volumes/system-boot
         touch ssh
         ```
-    1. Change WiFi settings in `network-config` file (NOTE: the Ubuntu docs for this file has incorrect formatting):
+    1. Change WiFi settings in `network-config` file (NOTE: the Ubuntu docs for this file have incorrect formatting):
         ```
         network:
           version: 2
@@ -37,13 +37,13 @@
                 "Your SSID":
                   password: "YourSSIDPassword"
         ```
-          - Note: the wifi config requires a reboot before it will actually connect
+          - Note: the wifi config may require a reboot before connecting
 
 ### Connect to Raspberry Pi on the network
 1. Plug in the RPi to the router/switch via ethernet (in case the wifi doesn't work immediately), as well as a keyboard and monitor.
 1. Boot the SD card in the RPi. Look for its IP address on the network using `nmap -sn 192.168.1.0/24` - edit for your appropriate subnet.
 1. SSH into the RPi using `ssh ubuntu@<RPi IP Address>` and password `ubuntu`
-1. Change pw when promtped
+1. Change pw when prompted
 
 ### [Network troubleshooting](https://askubuntu.com/questions/1324207/problem-with-wireless-networking-for-ubuntu-server-on-a-raspberry-pi-4/1324212#1324212)
 - Raspberry Pi Imager's Advanced Options doesn't work with Ubuntu 20
@@ -82,9 +82,29 @@
     1. Optional: Allow port 5000 - `sudo ufw allow 5000`
     1. Optional: Allow port 3000 - `sudo ufw allow 3000`
     1. Enable the firewall - `sudo ufw enable`
-1. Install Docker and docker-compose:
-    1. `sudo apt install docker.io`
-    1. Enter the user password if prompted.
+1. Install Docker (arm64):
+    1. `sudo apt-get remove docker docker-engine docker.io containerd runc`
+    1. `sudo apt-get update`
+    1. ```
+        sudo apt-get install \
+          apt-transport-https \
+          ca-certificates \
+          curl \
+          gnupg \
+          lsb-release
+      ```
+    1. ```
+        echo \
+          "deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+          $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      ```
+    1. `sudo apt-get update`
+    1. `sudo apt-get install docker-ce docker-ce-cli containerd.io`
+    1. `sudo groupadd docker`
+    1. `sudo gpasswd -a $USER docker`
+1. Install docker-compose:
+    1. `sudo curl -L --fail https://raw.githubusercontent.com/linuxserver/docker-docker-compose/master/run.sh -o /usr/local/bin/docker-compose`
+    1. `sudo chmod +x /usr/local/bin/docker-compose`
 
 ### Make your RPi accessible to the internet
 1. [Install Cloudflared Daemon](https://dev.to/omarcloud20/a-free-cloudflare-tunnel-running-on-a-raspberry-pi-1jid):
@@ -142,7 +162,7 @@
     - [Troubleshooting issues with service](https://github.com/cloudflare/cloudflared/issues/251) - DOES NOT WORK WITH REMOTE SSH CURRENTLY
 
 ### Install Proxy
-1. Stop services using port 80 - `sudo service apache2 stop && sudo service nginx stop`
+1. Stop services using port 80 - `sudo service apache2 stop && sudo service nginx stop` - (you have to do this every time the server reboots)
 1. Git clone proxy - `git clone https://github.com/avidsapp/arm64-nginx-proxy.git proxy`
 1. Start proxy - `cd proxy && sudo docker-compose up -d`
 1. Start other applications, but include environment variable `VIRTUAL_HOST: YOUR.DOMAIN.HERE`
