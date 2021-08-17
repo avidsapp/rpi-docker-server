@@ -35,7 +35,7 @@
               optional: true
               access-points:
                 "Your SSID":
-                password: "YourSSIDPassword"
+                  password: "YourSSIDPassword"
         ```
           - Note: the wifi config may require a reboot before connecting
 
