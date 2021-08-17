@@ -27,7 +27,7 @@
           ethernets:
             eth0:
               dhcp4: true
-              optional: trueubuntu
+              optional: true
 
           wifis:
             wlan0:
@@ -35,7 +35,7 @@
               optional: true
               access-points:
                 "Your SSID":
-                  password: "YourSSIDPassword"
+                password: "YourSSIDPassword"
         ```
           - Note: the wifi config may require a reboot before connecting
 
@@ -46,13 +46,16 @@
 1. Change pw when prompted
 
 ### [Network troubleshooting](https://askubuntu.com/questions/1324207/problem-with-wireless-networking-for-ubuntu-server-on-a-raspberry-pi-4/1324212#1324212)
-- Raspberry Pi Imager's Advanced Options doesn't work with Ubuntu 20
-- If you can't access SSH later, on the pi via keyboard/monitor, try:
+1. If you can't connect, check `sudo nano /etc/netplan/50-cloud-init.yaml` to make sure it matches the `network-config` from above.
+1. Enable netplan:
   ```
-  sudo apt install openssh-server
-  sudo service ssh enable
-  sudo service ssh start
+  sudo systemctl enable wpa_supplicant
+  sudo systemctl start wpa_supplicant
+  sudo netplan generate
+  sudo netplan apply
+  sudo reboot
   ```
+1. Raspberry Pi Imager's Advanced Options doesn't work with Ubuntu 20
 
 ### Update and install packages on RPi
 1. Update packages - `sudo apt-get update && sudo apt-get upgrade -y`
@@ -77,6 +80,7 @@
     1. Block all incoming - `sudo ufw default deny incoming`
     1. Allow all outgoing - `sudo ufw default allow outgoing`
     1. Allow port 22 - `sudo ufw allow OpenSSH`
+    1. Allow port 2022 - `sudo ufw allow 2022`
     1. Allow port 80 - `sudo ufw allow http`
     1. Allow port 443 - `sudo ufw allow https`
     1. Optional: Allow port 5000 - `sudo ufw allow 5000`
