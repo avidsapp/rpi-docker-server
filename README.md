@@ -89,21 +89,7 @@
 1. Install Docker (arm64):
     1. `sudo apt-get remove docker docker-engine docker.io containerd runc`
     1. `sudo apt-get update`
-    1. ```
-        sudo apt-get install \
-          apt-transport-https \
-          ca-certificates \
-          curl \
-          gnupg \
-          lsb-release
-      ```
-    1. ```
-        echo \
-          "deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-          $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-      ```
-    1. `sudo apt-get update`
-    1. `sudo apt-get install docker-ce docker-ce-cli containerd.io`
+    1. `curl -sSL https://get.docker.com | sh`
     1. `sudo groupadd docker`
     1. `sudo gpasswd -a $USER docker`
 1. Install docker-compose:
