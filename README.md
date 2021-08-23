@@ -64,6 +64,7 @@
 1. Add User:
     1. `sudo adduser <USER_NAME>`
     1. Add user to sudo group - `sudo usermod -aG sudo <USER_NAME>`
+
 1. Set-up SSH credentials:
     1. On local machine, create SSH key pair - `ssh-keygen -f ~/path/to/your/key -t ecdsa -b 521`
     1. Add your public key to the server's authorized_keys file and `~/.ssh/`. It will ask you for a password - `ssh-copy-id -i ~/path/to/your/key user@host`
@@ -75,6 +76,7 @@
         - Change - `PasswordAuthentication yes` to `PasswordAuthentication no`
         - Restart SSH - `sudo systemctl restart ssh`
         - Test SSH w/o password: - `ssh -i /path/to/key user@host`
+
 1. Firewall configuration:
     1. Check current firewall status - `sudo ufw status numbered`
     1. Block all incoming - `sudo ufw default deny incoming`
@@ -86,25 +88,26 @@
     1. Optional: Allow port 5000 - `sudo ufw allow 5000`
     1. Optional: Allow port 3000 - `sudo ufw allow 3000`
     1. Enable the firewall - `sudo ufw enable`
+
 1. Install Docker (arm64):
     1. `sudo apt-get remove docker docker-engine docker.io containerd runc`
     1. `sudo apt-get update`
     1. `curl -sSL https://get.docker.com | sh`
     1. `sudo groupadd docker`
     1. `sudo gpasswd -a $USER docker`
+
 1. Install docker-compose:
     1. `sudo curl -L --fail https://raw.githubusercontent.com/linuxserver/docker-docker-compose/master/run.sh -o /usr/local/bin/docker-compose`
     1. `sudo chmod +x /usr/local/bin/docker-compose`
 
 ### Make your RPi accessible to the internet
-1. [Install Cloudflared Daemon](https://dev.to/omarcloud20/a-free-cloudflare-tunnel-running-on-a-raspberry-pi-1jid):
+1. [Install Cloudflared](https://dev.to/omarcloud20/a-free-cloudflare-tunnel-running-on-a-raspberry-pi-1jid):
     1. `wget -O cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64`
     1. `sudo mv cloudflared /usr/local/bin`
     1. `sudo chmod +x /usr/local/bin/cloudflared`
     1. Authenticate Cloudflared - `cloudflared login`
     1. Copy/paste link generated on the cmd line into a browser and follow instructions.
-    1. Create a tunnel - `cloudflared tunnel create <TUNNEL_NAME>`
-    1. Make config dir if it doesn't exist - `sudo mkdir /etc/cloudflared`
+    1. Create a tunnel - `cloudflared tunnel create <TUNNEL_NAME>`. Note down the UUID somewhere safe, which follows "Created tunnel xxxx with id #######-####-###-#####..."
     1. Configure tunnel -  `sudo nano ~/.cloudflared/config.yml`:
         ```
         tunnel: <UUID>
@@ -117,7 +120,29 @@
             service: ssh://localhost:2022
           - service: http_status:404
         ```
+    1. Make config dir if it doesn't exist - `sudo mkdir /etc/cloudflared`
+    1. Copy config to service directory - `sudo cp -r ~/.cloudflared/* /etc/cloudflared`
+
+1. Create DNS records (2 options):
+    1. CNAME - subdomain - <UUID.cfargotunnel.com>
+    1. `cloudflared tunnel route dns <UUID or TUNNEL_NAME> YOUR.DOMAIN.HERE`
+    1. Add one for Port 80 and Port 2022
+
+1. Add a Zero Trust policy to Cloudflare Teams:
+    1. Access > Applications > Add an application > Self-Hosted:
+        - Add name, session duration, subdomain, and application name
+    1. Rule:
+        - Add rule name, Rule action = Bypass, Include = Everyone
+    1. Advanced Settings:
+        - Enable automatic cloudflared authentication, Browser rendering = SSH
+
+1. Run cloudflared tunnel (2 options):
+    1. With the cmd line - `cloudflared tunnel run <TUNNEL_NAME>` - NOTE: this requires an open terminal tab with the cloudflared tunnel running in order for any end users to access the websites hosted on this server, hence why running as a service is preferred.
+    1. (PREFERRED) As a service, in the background - `sudo cloudflared service install`
+        - [Troubleshooting issues with service](https://github.com/cloudflare/cloudflared/issues/251) - DOES NOT WORK WITH REMOTE SSH CURRENTLY
+
 1. [Add remote SSH capability](https://dev.to/blake/creating-securing-a-remote-dev-environment-3558):
+    1. Open a new tab on the server. SSH in, if necessary. This ensures the tunnel stays running until you start it as a service.
     1. Add port 2022 as additional SSH port - `sudo nano /etc/ssh/sshd_config`:
     1. Uncomment and add the following lines:
         ```
@@ -132,24 +157,10 @@
           ProxyCommand /usr/local/bin/cloudflared access ssh --hostname %h
           User <USER_NAME>
         ```
-    1. Run the cloudflared tunnel - `cloudflared tunnel run <TUNNEL_NAME>`
-    1. Run the SSH daemon on the remote host - `cloudflared access ssh --hostname YOUR.DOMAIN.HERE`
+    1. On remote host - Run the cloudflared tunnel (if not already running or running as a service in the background) - `cloudflared tunnel run <TUNNEL_NAME>`
+    1. Run the SSH daemon on the remote host - `cloudflared access ssh --hostname YOUR.DOMAIN.HERE`. This CANNOT be run as a service (tab has to stay open and running to access via SSH)
     1. You should be able to connect via SSH - `ssh YOUR.DOMAIN.HERE`
     1. Add `Remote - SSH` if you use Visual Studio - [Link](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
-1. Copy config to service directory - `sudo cp -r ~/.cloudflared/* /etc/cloudflared/config.yml`
-1. Create DNS records (2 options):
-    1. CNAME - subdomain - <UUID.cfargotunnel.com>
-    1. `cloudflared tunnel route dns <UUID or TUNNEL_NAME> YOUR.DOMAIN.HERE`
-    1. Add one for Port 80 and Port 2022
-1. Add a Zero Trust policy to Cloudflare Teams:
-    1. Access > Applications > Self-Hosted:
-        - Add name, session duration, subdomain, and application name
-    1. Rule:
-        - Add rule name, Rule action = Bypass, Include = Everyone
-    1. Advanced Settings:
-        - Enable automatic cloudflared authentication, Browser rendering = SSH
-1. Run cloudflared as a service - `sudo cloudflared service install`
-    - [Troubleshooting issues with service](https://github.com/cloudflare/cloudflared/issues/251) - DOES NOT WORK WITH REMOTE SSH CURRENTLY
 
 ### Install Proxy
 1. Stop services using port 80 - `sudo service apache2 stop && sudo service nginx stop` - (you have to do this every time the server reboots)
@@ -159,6 +170,7 @@
 
 ## Dockerized applications to add to your server
 1. [Docker WordPress](https://github.com/avidsapp/docker-wordpress.git)
+1. [Docker Owncloud](https://github.com/avidsapp/docker-owncloud)
 1. [Docker Flask API](https://github.com/avidsapp/docker-flask-api.git)
 1. [Docker Flask Socket](https://github.com/avidsapp/docker-flask-react.git)
 1. [Docker Flask React Socket](https://github.com/avidsapp/docker-flask-react-socket.git)
