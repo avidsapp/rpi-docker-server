@@ -61,6 +61,8 @@
 1. Update packages - `sudo apt-get update && sudo apt-get upgrade -y`
 1. Install Git - `sudo apt install git-all -y`
 1. Set Timezone - `sudo timedatectl set-timezone America/Denver`
+1. Remove http servers (conflicts with dockerized automated nginx proxy) - ` apt-get purge apache2 -y && apt-get purge nginx -y`
+
 1. Add User:
     1. `sudo adduser <USER_NAME>`
     1. Add user to sudo group - `sudo usermod -aG sudo <USER_NAME>`
@@ -161,6 +163,15 @@
     1. Run the SSH daemon on the remote host - `cloudflared access ssh --hostname YOUR.DOMAIN.HERE`. This CANNOT be run as a service (tab has to stay open and running to access via SSH)
     1. You should be able to connect via SSH - `ssh YOUR.DOMAIN.HERE`
     1. Add `Remote - SSH` if you use Visual Studio - [Link](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
+
+1. Optional: [Enable Raspberry Pi Camera](https://zengliyang.wordpress.com/2021/01/04/raspberry-pi-4b-ubuntu-20-04-camera/)
+    1. Add to `sudo nano /boot/firmware/config.txt`:
+        - ```
+            # Raspberry Pi Camera
+            start_x=1
+            gpu_mem=128
+          ```
+    1. Reboot - `sudo reboot`
 
 ### Install Proxy
 1. Stop services using port 80 - `sudo service apache2 stop && sudo service nginx stop` - (you have to do this every time the server reboots)
