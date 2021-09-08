@@ -10,7 +10,17 @@
 - MicroSD card - 32GB+ preferred
 - Cloudflare and Cloudflare Teams account
 
-## Setup
+## Automated Setup
+
+**UNDER CONSTRUCTION**
+
+Start setup script:
+`sh /home/$USER/scripts/setup.sh`
+
+After reboot script:
+`sh /home/$USER/scripts/on_reboot.sh`
+
+## Manual Setup
 
 ### Install Ubuntu on RPi
 1. Using [Raspberry Pi Imager](https://ubuntu.com/tutorials/how-to-install-ubuntu-on-your-raspberry-pi#2-prepare-the-sd-card), install Ubuntu 20.04.2 LTS (Focal Fossa) 64-bit Server on flash SD. Do not enable any advanced or wifi settings at this time.
@@ -61,11 +71,11 @@
 1. Update packages - `sudo apt-get update && sudo apt-get upgrade -y`
 1. Install Git - `sudo apt install git-all -y`
 1. Set Timezone - `sudo timedatectl set-timezone America/Denver`
-1. Remove http servers (conflicts with dockerized automated nginx proxy) - ` apt-get purge apache2 -y && apt-get purge nginx -y`
+1. Remove http servers (conflicts with dockerized automated nginx proxy) - `sudo apt-get purge apache2 -y && sudo apt-get purge nginx -y && sudo apt autoremove`
 
 1. Add User:
-    1. `sudo adduser <USER_NAME>`
-    1. Add user to sudo group - `sudo usermod -aG sudo <USER_NAME>`
+    1. `sudo adduser <user_name>`
+    1. Add user to sudo group - `sudo usermod -aG sudo <user_name>`
 
 1. Set-up SSH credentials:
     1. On local machine, create SSH key pair - `ssh-keygen -f ~/path/to/your/key -t ecdsa -b 521`
@@ -87,20 +97,26 @@
     1. Allow port 2022 - `sudo ufw allow 2022`
     1. Allow port 80 - `sudo ufw allow http`
     1. Allow port 443 - `sudo ufw allow https`
+    1. Optional: Allow port 8080 - `sudo ufw allow 8080`
     1. Optional: Allow port 5000 - `sudo ufw allow 5000`
+    1. Optional: Allow port 5001 - `sudo ufw allow 5001`
     1. Optional: Allow port 3000 - `sudo ufw allow 3000`
     1. Enable the firewall - `sudo ufw enable`
 
 1. Install Docker (arm64):
-    1. `sudo apt-get remove docker docker-engine docker.io containerd runc`
-    1. `sudo apt-get update`
-    1. `curl -sSL https://get.docker.com | sh`
-    1. `sudo groupadd docker`
-    1. `sudo gpasswd -a $USER docker`
+    1. ```
+        sudo apt-get remove docker docker-engine docker.io containerd runc
+        sudo apt-get update
+        curl -sSL https://get.docker.com | sh
+        sudo groupadd docker
+        sudo gpasswd -a $USER docker
+      ```
 
 1. Install docker-compose:
-    1. `sudo curl -L --fail https://raw.githubusercontent.com/linuxserver/docker-docker-compose/master/run.sh -o /usr/local/bin/docker-compose`
-    1. `sudo chmod +x /usr/local/bin/docker-compose`
+    1. ```
+        sudo curl -L --fail https://raw.githubusercontent.com/linuxserver/docker-docker-compose/master/run.sh -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+      ```
 
 ### Make your RPi accessible to the internet
 1. [Install Cloudflared](https://dev.to/omarcloud20/a-free-cloudflare-tunnel-running-on-a-raspberry-pi-1jid):
@@ -112,15 +128,15 @@
     1. Create a tunnel - `cloudflared tunnel create <TUNNEL_NAME>`. Note down the UUID somewhere safe, which follows "Created tunnel xxxx with id #######-####-###-#####..."
     1. Configure tunnel -  `sudo nano ~/.cloudflared/config.yml`:
         ```
-        tunnel: <UUID>
-        credentials-file: /etc/cloudflared/<UUID>.json
+          tunnel: <UUID>
+          credentials-file: /etc/cloudflared/<UUID>.json
 
-        ingress:
-          - hostname: your.domain1.com
-            service: http://localhost:80
-          - hostname: your.domain2.com
-            service: ssh://localhost:2022
-          - service: http_status:404
+          ingress:
+            - hostname: your.domain1.com
+              service: http://localhost:80
+            - hostname: your.domain2.com
+              service: ssh://localhost:2022
+            - service: http_status:404
         ```
     1. Make config dir if it doesn't exist - `sudo mkdir /etc/cloudflared`
     1. Copy config to service directory - `sudo cp -r ~/.cloudflared/* /etc/cloudflared`
@@ -157,32 +173,43 @@
         ```
         Host YOUR.DOMAIN.HERE
           ProxyCommand /usr/local/bin/cloudflared access ssh --hostname %h
-          User <USER_NAME>
+          User $USER
         ```
     1. On remote host - Run the cloudflared tunnel (if not already running or running as a service in the background) - `cloudflared tunnel run <TUNNEL_NAME>`
     1. Run the SSH daemon on the remote host - `cloudflared access ssh --hostname YOUR.DOMAIN.HERE`. This CANNOT be run as a service (tab has to stay open and running to access via SSH)
     1. You should be able to connect via SSH - `ssh YOUR.DOMAIN.HERE`
     1. Add `Remote - SSH` if you use Visual Studio - [Link](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
 
-1. Optional: [Enable Raspberry Pi Camera](https://zengliyang.wordpress.com/2021/01/04/raspberry-pi-4b-ubuntu-20-04-camera/)
-    1. Add to `sudo nano /boot/firmware/config.txt`:
-        - ```
-            # Raspberry Pi Camera
-            start_x=1
-            gpu_mem=128
-          ```
-    1. Reboot - `sudo reboot`
+1. Optional: Enable Camera
+    1. Plug in USB camera or Raspberry Pi
+    1. Add user to `video` group - `sudo usermod -a -G video $USER`
+    1. Check if Ubuntu recognizes camera - `dmesg | grep -i "Camera"` or `ls -ltrh /dev/video*`
+    1. Install `v4l2` - `sudo apt install v4l2-utils`
+    1. Check out more info on camera - `v4l2-ctl --device=/dev/video* --all`
+    1. List devices with video data use:
+      ```
+        for dev in `find /dev -iname 'video*' -printf "%f\n"`
+        do
+        v4l2-ctl --list-formats --device /dev/$dev | \
+          grep -qE '\[[0-9]\]' && \
+          echo $dev `cat /sys/class/video4linux/$dev/name`
+        done
+      ```
+    1. Your cameras will have "Video Recording" capability and not "Meta Recording" capability. Although I had 2 cameras plugged in, approx. 10 video devices were shown. My actual cameras were on `/dev/video0` and `/dev/video2`
+    1. Add [this repo](https://github.com/miguelgrinberg/flask-video-streaming) to your Docker app
 
 ### Install Proxy
-1. Stop services using port 80 - `sudo service apache2 stop && sudo service nginx stop` - (you have to do this every time the server reboots)
+1. Stop services using port 80, if running - `sudo service apache2 stop && sudo service nginx stop`
 1. Git clone proxy - `git clone https://github.com/avidsapp/arm64-nginx-proxy.git proxy`
 1. Start proxy - `cd proxy && sudo docker-compose up -d`
 1. Start other applications, but include environment variable `VIRTUAL_HOST: YOUR.DOMAIN.HERE`
 
 ## Dockerized applications to add to your server
 1. [Docker WordPress](https://github.com/avidsapp/docker-wordpress.git)
-1. [Docker Owncloud](https://github.com/avidsapp/docker-owncloud)
+1. [Docker Owncloud](https://github.com/avidsapp/docker-owncloud.git)
+1. [Docker Uptime Monitor](https://github.com/avidsapp/docker-uptime-monitor.git)
 1. [Docker Flask API](https://github.com/avidsapp/docker-flask-api.git)
+1. [Docker Flask Webcam](https://github.com/avidsapp/docker-flask-webcam.git)
 1. [Docker Flask Socket](https://github.com/avidsapp/docker-flask-react.git)
 1. [Docker Flask React Socket](https://github.com/avidsapp/docker-flask-react-socket.git)
 
