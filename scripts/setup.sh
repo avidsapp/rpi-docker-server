@@ -1,17 +1,23 @@
 # Start with sh ./setup.sh
 
-# Install dependencies
+# Load .env variables
+export $(grep -v '#.*' .env | xargs)
+
+# Install dependencies and clean house
 sudo apt-get update && sudo apt-get upgrade -y
 sudo apt install git-all -y
+sudo apt install git-all -y
 sudo timedatectl set-timezone America/Denver
-sudo apt-get purge apache2 -y && sudo apt-get purge nginx -y && sudo apt autoremove
+sudo apt-get purge apache2 -y && sudo apt-get purge nginx -y
+sudo apt-get autoremove -y
 
-# ADD INPUT
 # Add user
 sudo useradd -p $(openssl passwd -1 $PASS) $USERNAME
 sudo usermod -aG sudo $USERNAME
 
-# Setup Firewall
+# AUTOMATE - SSH CREDENTIALS
+
+# Setup firewall
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow OpenSSH 2022 http https 8080 5000 5001 3000
@@ -33,37 +39,41 @@ wget -O cloudflared https://github.com/cloudflare/cloudflared/releases/latest/do
 sudo mv cloudflared /usr/local/bin
 sudo chmod +x /usr/local/bin/cloudflared
 
-# AUTOMATE
-cloudflared login
+############
+# AUTOMATE #
+############
 
-# ADD INPUT
-cloudflared tunnel create $TUNNEL_NAME
+# # Authorize cloudflared
+# cloudflared login
+#
+# # Create tunnel
+# cloudflared tunnel create $TUNNEL_NAME
+#
+# # Add cloudflared config
+# sudo nano ~/.cloudflared/config.yml
+#   tunnel: $UUID
+#   credentials-file: /etc/cloudflared/$UUID.json
+#
+#   ingress:
+#     - hostname: $DOMAIN1
+#       service: http://localhost:80
+#     - hostname: $DOMAIN2
+#       service: ssh://localhost:2022
+#     - service: http_status:404
+#
+# sudo mkdir /etc/cloudflared
+# sudo cp -r ~/.cloudflared/* /etc/cloudflared
+#
+# # Add DNS
+# cloudflared tunnel route dns $TUNNEL_NAME $DOMAIN1
+# sudo cloudflared service install
 
-# AUTOMATE
-sudo nano ~/.cloudflared/config.yml
-  tunnel: $UUID
-  credentials-file: /etc/cloudflared/$UUID.json
+# UNCOMMENT AFTER CLOUDFLARED AUTOMATION COMPLETE
 
-  ingress:
-    - hostname: $DOMAIN1
-      service: http://localhost:80
-    - hostname: $DOMAIN2
-      service: ssh://localhost:2022
-    - service: http_status:404
+# Install and run proxy
+# sudo service apache2 stop && sudo service nginx stop
+# git clone https://github.com/avidsapp/arm64-nginx-proxy.git proxy
+# cd proxy && sudo docker-compose up -d
 
-sudo mkdir /etc/cloudflared
-sudo cp -r ~/.cloudflared/* /etc/cloudflared
-
-# AUTOMATE
-cloudflared tunnel route dns $TUNNEL_NAME $DOMAIN1
-
-sudo cloudflared service install
-
-# Install Proxy
-sudo service apache2 stop && sudo service nginx stop
-git clone https://github.com/avidsapp/arm64-nginx-proxy.git proxy
-cd proxy && sudo docker-compose up -d
-
-# FIX AND AUTOMATE
-crontab -e
-@reboot /home/user/scripts/on_reboot.sh
+# Reboot when complete
+sudo reboot
