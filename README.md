@@ -39,22 +39,22 @@ Start setup script - `sh /home/$USER/scripts/setup.sh`
         touch ssh
         ```
     1. Change WiFi settings in `network-config` file (NOTE: the Ubuntu docs for this file have incorrect formatting) - `sudo rm network-config && sudo nano network-config`:
-      ```
-      network:
-        version: 2
-        ethernets:
-          eth0:
-            dhcp4: true
-            optional: true
+        ```
+        network:
+          version: 2
+          ethernets:
+            eth0:
+              dhcp4: true
+              optional: true
 
-        wifis:
-          wlan0:
-            dhcp4: true
-            optional: true
-            access-points:
-              "Your SSID":
-                password: "YourSSIDPassword"
-      ```
+          wifis:
+            wlan0:
+              dhcp4: true
+              optional: true
+              access-points:
+                "Your SSID":
+                  password: "YourSSIDPassword"
+        ```
     1. HDMI Display Troubleshooting - For my Sony Bravia 4K TV, I needed to set the TV settings to [Enhanced Format](https://everythingwhat.com/how-do-i-change-the-resolution-on-my-sony-bravia-tv) and reboot the TV. [Additional `config.txt` settings](https://www.retrogamesaddict.com/how-to-fix-a-blank-screen-when-booting-retropie/) - `sudo nano config.txt`:
         ```
         hdmi_safe=1
