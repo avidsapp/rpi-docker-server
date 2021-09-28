@@ -56,16 +56,16 @@ Start setup script - `sh /home/$USER/scripts/setup.sh`
                 password: "YourSSIDPassword"
       ```
     1. HDMI Display Troubleshooting - For my Sony Bravia 4K TV, I needed to set the TV settings to [Enhanced Format](https://everythingwhat.com/how-do-i-change-the-resolution-on-my-sony-bravia-tv) and reboot the TV. [Additional `config.txt` settings](https://www.retrogamesaddict.com/how-to-fix-a-blank-screen-when-booting-retropie/) - `sudo nano config.txt`:
-      ```
-      hdmi_safe=1
-      ```
-      OR
-      ```
-      hdmi_force_hotplug=1
-      hdmi_drive=2
-      hdmi_group=1
-      hdmi_mode=1
-      ```
+        ```
+        hdmi_safe=1
+        ```
+        OR
+        ```
+        hdmi_force_hotplug=1
+        hdmi_drive=2
+        hdmi_group=1
+        hdmi_mode=1
+        ```
 
 ### Connect to Raspberry Pi on the network
 1. Update the wifi configuration via a USB keyboard or
