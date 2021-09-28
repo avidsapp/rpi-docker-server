@@ -39,7 +39,6 @@ Start setup script - `sh /home/$USER/scripts/setup.sh`
         touch ssh
         ```
     1. Change WiFi settings in `network-config` file (NOTE: the Ubuntu docs for this file have incorrect formatting) - `sudo rm network-config && sudo nano network-config`:
-
       ```
       network:
         version: 2
