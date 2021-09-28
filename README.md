@@ -288,6 +288,5 @@ Be sure to change the arguments in <BRACKETS> to your credentials
 1. [Docker Flask React Socket](https://github.com/avidsapp/docker-flask-react-socket.git)
 
 ## ToDo
-1. Add fail2ban
 1. Build script
 1. Runtime env variables
