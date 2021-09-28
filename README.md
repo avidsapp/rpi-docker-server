@@ -121,9 +121,9 @@ Be sure to change the arguments in <BRACKETS> to your credentials
     1. Block all incoming - `sudo ufw default deny incoming`
     1. Allow all outgoing - `sudo ufw default allow outgoing`
     1. Allow port 22 - `sudo ufw allow OpenSSH`
-    1. Allow port 2022 - `sudo ufw allow 2022`
     1. Allow port 80 - `sudo ufw allow http`
     1. Allow port 443 - `sudo ufw allow https`
+    1. Allow port 2022 - `sudo ufw allow 2022`
     1. Optional: Allow port 8080 - `sudo ufw allow 8080`
     1. Optional: Allow port 5000 - `sudo ufw allow 5000`
     1. Optional: Allow port 5001 - `sudo ufw allow 5001`
@@ -153,46 +153,47 @@ Be sure to change the arguments in <BRACKETS> to your credentials
             ca-certificates \
             curl \
             gnupg \
-            lsb-release
+            lsb-release -y
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
         echo \
             "deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
             $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
         sudo apt-get update
-        sudo apt-get install docker-ce docker-ce-cli containerd.io
+        sudo apt-get install docker-ce docker-ce-cli containerd.io -y
         sudo groupadd docker
         sudo usermod -aG docker $USER
+        sudo gpasswd -a $USER docker
         newgrp docker
+        sudo su $USER
         ```
-    1. Check if Docker installed correctly - `docker --version`
-        - If an error occurs, `sudo nano /etc/systemd/network/bridge.network`:
-            ```
-            [Network]
+    1. Connect Docker and docker-compose services `sudo nano /etc/systemd/network/bridge.network`:
+        ```
+        [Network]
 
-            IPFoward=kernel
-            ```
-        - Reinstall docker-ce:
-            ```
-            sudo systemctl restart systemd-networkd.service
-            sudo apt remove docker-ce
-            sudo apt install docker-ce
-            sudo systemctl status docker.service
-            ```
+        IPFoward=kernel
+        ```
+    1. Reinstall docker-ce:
+        ```
+        sudo systemctl restart systemd-networkd.service
+        sudo apt remove docker-ce -y
+        sudo apt install docker-ce
+        sudo systemctl status docker.service
+        ```
 
 1. Install docker-compose:
-    ```
-    sudo apt install python3-pip
-    pip3 install docker-compose
-    ```
+    1. Install pip3 and docker-compose:
+        ```
+        sudo apt install python3-pip
+        pip3 install docker-compose
+        ```
+    1. Add dependencies to PATH:
+        ```
+        export PATH="$HOME/bin:$PATH"
+        export PATH="$HOME/.local/bin:$PATH"
+        ```
     1. Check if docker-compose installed correctly - `docker-compose --version`
 
-1. Add dependencies to PATH:
-    ```
-    export PATH="$HOME/bin:$PATH"
-    export PATH="$HOME/.local/bin:$PATH"
-    ```
-
-### Make your RPi accessible to the internet
+### Optional: Make your RPi accessible to the internet
 1. [Install Cloudflared](https://dev.to/omarcloud20/a-free-cloudflare-tunnel-running-on-a-raspberry-pi-1jid):
     1. `wget -O cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64`
     1. `sudo mv cloudflared /usr/local/bin`
@@ -229,7 +230,7 @@ Be sure to change the arguments in <BRACKETS> to your credentials
         - Enable automatic cloudflared authentication, Browser rendering = SSH
 
 1. Run cloudflared tunnel (2 options):
-    1. With the cmd line - `cloudflared tunnel run <TUNNEL_NAME>` - NOTE: this requires an open terminal tab with the cloudflared tunnel running in order for any end users to access the websites hosted on this server, hence why running as a service is preferred.
+    1. With the cmd line - `sudo cloudflared tunnel run <TUNNEL_NAME>` - NOTE: this requires an open terminal tab with the cloudflared tunnel running in order for any end users to access the websites hosted on this server, hence why running as a service is preferred.
     1. (PREFERRED) As a service, in the background - `sudo cloudflared service install`
         - [Troubleshooting issues with service](https://github.com/cloudflare/cloudflared/issues/251) - DOES NOT WORK WITH REMOTE SSH CURRENTLY
 
@@ -254,7 +255,7 @@ Be sure to change the arguments in <BRACKETS> to your credentials
     1. You should be able to connect via SSH - `ssh YOUR.DOMAIN.HERE`
     1. Add `Remote - SSH` if you use Visual Studio - [Link](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh)
 
-1. Optional: Enable Camera
+### Optional: Enable Camera
     1. Plug in USB camera or Raspberry Pi
     1. Add user to `video` group - `sudo usermod -a -G video $USER`
     1. Check if Ubuntu recognizes camera - `dmesg | grep -i "Camera"` or `ls -ltrh /dev/video*`
@@ -275,7 +276,7 @@ Be sure to change the arguments in <BRACKETS> to your credentials
 ### Install Proxy
 1. Stop services using port 80, if running - `sudo service apache2 stop && sudo service nginx stop`
 1. Git clone proxy - `git clone https://github.com/avidsapp/arm64-nginx-proxy.git proxy`
-1. Start proxy - `cd proxy && sudo docker-compose up -d`
+1. Start proxy - `cd proxy && docker-compose up -d`
 1. Start other applications, but include environment variable `VIRTUAL_HOST: YOUR.DOMAIN.HERE`
 
 ## Dockerized applications to add to your server
