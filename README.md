@@ -79,13 +79,13 @@ Start setup script - `sh /home/$USER/scripts/setup.sh`
 1. If you can't connect or find your RPi on the network, plug a keyboard and monitor in and boot it up.
 1. Check `sudo nano /etc/netplan/50-cloud-init.yaml` to make sure it matches the `network-config` from above. If not, add to this `.yaml` file matching the above configuration, substituting your credentials where applicable.
 1. Enable netplan:
-```
-sudo systemctl enable wpa_supplicant
-sudo systemctl start wpa_supplicant
-sudo netplan generate
-sudo netplan apply
-sudo reboot
-```
+    ```
+    sudo systemctl enable wpa_supplicant
+    sudo systemctl start wpa_supplicant
+    sudo netplan generate
+    sudo netplan apply
+    sudo reboot
+    ```
 
 ### Update and install packages on RPi
 1. Update packages - `sudo apt-get update && sudo apt-get upgrade -y`
@@ -131,66 +131,66 @@ Be sure to change the arguments in <BRACKETS> to your credentials
     1. Enable the firewall - `sudo ufw enable`
 
 1. Install fail2ban:
-```
-sudo apt install fail2ban -y
-sudo systemctl enable fail2ban
-```
+    ```
+    sudo apt install fail2ban -y
+    sudo systemctl enable fail2ban
+    ```
 
 1. Install Docker (arm64):
     1. Remove old versions, if installed:
-```
-sudo apt-get purge -y docker-engine docker docker.io docker-ce docker-ce-cli docker-ce-rootless-extras
-sudo apt-get autoremove -y --purge docker-engine docker docker.io docker-ce docker-ce-cli docker-ce-rootless-extras
-sudo umount /var/lib/docker/
-sudo rm -rf /var/lib/docker /var/run/docker.sock /var/lib/containerd /etc/docker /etc/apparmor.d/docker /usr/bin/docker-compose /usr/local/bin/docker-compose
-sudo groupdel docker
-```
+        ```
+        sudo apt-get purge -y docker-engine docker docker.io docker-ce docker-ce-cli docker-ce-rootless-extras
+        sudo apt-get autoremove -y --purge docker-engine docker docker.io docker-ce docker-ce-cli docker-ce-rootless-extras
+        sudo umount /var/lib/docker/
+        sudo rm -rf /var/lib/docker /var/run/docker.sock /var/lib/containerd /etc/docker /etc/apparmor.d/docker /usr/bin/docker-compose /usr/local/bin/docker-compose
+        sudo groupdel docker
+        ```
     1. Install Docker:
-```
-sudo apt-get update
-sudo apt-get install \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo \
-    "deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io
-sudo groupadd docker
-sudo usermod -aG docker $USER
-newgrp docker
-```
+        ```
+        sudo apt-get update
+        sudo apt-get install \
+            apt-transport-https \
+            ca-certificates \
+            curl \
+            gnupg \
+            lsb-release
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo \
+            "deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt-get update
+        sudo apt-get install docker-ce docker-ce-cli containerd.io
+        sudo groupadd docker
+        sudo usermod -aG docker $USER
+        newgrp docker
+        ```
     1. Check if Docker installed correctly - `docker --version`
         - If an error occurs, `sudo nano /etc/systemd/network/bridge.network`:
-```
-[Network]
+            ```
+            [Network]
 
-IPFoward=kernel
-```
+            IPFoward=kernel
+            ```
         - Reinstall docker-ce:
-```
-sudo systemctl restart systemd-networkd.service
-sudo apt remove docker-ce
-sudo apt install docker-ce
-sudo systemctl status docker.service
-```
+            ```
+            sudo systemctl restart systemd-networkd.service
+            sudo apt remove docker-ce
+            sudo apt install docker-ce
+            sudo systemctl status docker.service
+            ```
 
 1. Install docker-compose:
-```
-sudo apt install python3-pip
-pip3 install docker-compose
-```
+    ```
+    sudo apt install python3-pip
+    pip3 install docker-compose
+    ```
     1. Check if docker-compose installed correctly - `docker-compose --version`
 
 1. Add dependencies to PATH:
-```
-export PATH="$HOME/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-```
+    ```
+    export PATH="$HOME/bin:$PATH"
+    export PATH="$HOME/.local/bin:$PATH"
+    ```
 
 ### Make your RPi accessible to the internet
 1. [Install Cloudflared](https://dev.to/omarcloud20/a-free-cloudflare-tunnel-running-on-a-raspberry-pi-1jid):
@@ -201,17 +201,17 @@ export PATH="$HOME/.local/bin:$PATH"
     1. Copy/paste link generated on the cmd line into a browser and follow instructions.
     1. Create a tunnel - `cloudflared tunnel create <TUNNEL_NAME>`. Note down the UUID somewhere safe, which follows "Created tunnel xxxx with id #######-####-###-#####..."
     1. Configure tunnel -  `sudo nano ~/.cloudflared/config.yml`:
-```
-tunnel: <UUID>
-credentials-file: /etc/cloudflared/<UUID>.json
+        ```
+        tunnel: <UUID>
+        credentials-file: /etc/cloudflared/<UUID>.json
 
-ingress:
-  - hostname: your.domain1.com
-    service: http://localhost:80
-  - hostname: your.domain2.com
-    service: ssh://localhost:2022
-  - service: http_status:404
-```
+        ingress:
+          - hostname: your.domain1.com
+            service: http://localhost:80
+          - hostname: your.domain2.com
+            service: ssh://localhost:2022
+          - service: http_status:404
+        ```
     1. Make config dir if it doesn't exist - `sudo mkdir /etc/cloudflared`
     1. Copy config to service directory - `sudo cp -r ~/.cloudflared/* /etc/cloudflared`
 
@@ -261,14 +261,14 @@ ingress:
     1. Install `v4l2` - `sudo apt install v4l2-utils`
     1. Check out more info on camera - `v4l2-ctl --device=/dev/video* --all`
     1. List devices with video data use:
-      ```
-        for dev in `find /dev -iname 'video*' -printf "%f\n"`
-        do
-        v4l2-ctl --list-formats --device /dev/$dev | \
-          grep -qE '\[[0-9]\]' && \
-          echo $dev `cat /sys/class/video4linux/$dev/name`
-        done
-      ```
+        ```
+          for dev in `find /dev -iname 'video*' -printf "%f\n"`
+          do
+          v4l2-ctl --list-formats --device /dev/$dev | \
+            grep -qE '\[[0-9]\]' && \
+            echo $dev `cat /sys/class/video4linux/$dev/name`
+          done
+        ```
     1. Your cameras will have "Video Recording" capability and not "Meta Recording" capability. Although I had 2 cameras plugged in, approx. 10 video devices were shown. My actual cameras were on `/dev/video0` and `/dev/video2`
     1. Add [this repo](https://github.com/miguelgrinberg/flask-video-streaming) to your Docker app
 
