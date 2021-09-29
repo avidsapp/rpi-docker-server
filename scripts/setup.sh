@@ -7,6 +7,8 @@ export $(grep -v '#.*' .env | xargs)
 sudo apt-get update && sudo apt-get upgrade -y
 sudo apt install git-all -y
 sudo apt install git-all -y
+git config --global user.email $GIT_EMAIL
+git config --global user.name $GIT_NAME
 sudo timedatectl set-timezone America/Denver
 sudo apt-get purge apache2 -y && sudo apt-get purge nginx -y
 sudo apt-get autoremove -y
@@ -68,7 +70,7 @@ sudo su $USERNAME
 # sudo nano /etc/systemd/network/bridge.network
 # [Network]
 #
-# IPFoward=kernel
+# IPForward=kernel
 
 # Reinstall docker-ce
 sudo systemctl restart systemd-networkd.service
@@ -104,7 +106,7 @@ sudo chmod +x /usr/local/bin/cloudflared
 #
 #   ingress:
 #     - hostname: $DOMAIN1
-#       service: http://localhost:80
+#       service: https://localhost:80
 #     - hostname: $DOMAIN2
 #       service: ssh://localhost:2022
 #     - service: http_status:404

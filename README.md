@@ -32,6 +32,8 @@ Start setup script - `sh /home/$USER/scripts/setup.sh`
     - Ensure USB drive is formatted in `FAT32`. You can format the card via the Raspberry Pi Imager.
     - In order to boot from USB out-of-the-box, flash 21.04 (Hirusite Hippo) 64-bit Server (arm64) on the USB drive.
     - Do not enable any advanced or wifi settings at this time.
+1. You may need to clear the Imager cache if writing to the card produces an extraction error
+    - macOS - `sudo rm -rf "~/Library/Caches/Raspberry Pi/Imager"`
 1. After the imager flashes the OS, open the card/drive from terminal:
     1. To enable SSH add a blank `ssh` file at the root of the SD card
         ```
@@ -68,7 +70,6 @@ Start setup script - `sh /home/$USER/scripts/setup.sh`
         ```
 
 ### Connect to Raspberry Pi on the network
-1. Update the wifi configuration via a USB keyboard or
 1. Plug in the RPi to the router/switch via ethernet (in case the wifi doesn't work immediately), as well as a keyboard and monitor.
 1. Boot the SD card in the RPi. Look for its IP address on the network using `nmap -sn 192.168.1.0/24` - edit for your appropriate subnet.
 1. Add entry to your SSH config file
@@ -91,6 +92,11 @@ Start setup script - `sh /home/$USER/scripts/setup.sh`
 1. Update packages - `sudo apt-get update && sudo apt-get upgrade -y`
 1. Install Git - `sudo apt install git-all -y`
 1. Install Git again (in case failed) - `sudo apt install git-all -y`
+1. Configure Git credentials:
+    ```
+    git config --global user.email "you@example.com"
+    git config --global user.name "Your Name"
+    ```
 1. Set Timezone - `sudo timedatectl set-timezone America/Denver`
 1. Remove http servers (conflicts with dockerized automated nginx proxy) - `sudo apt-get purge apache2 -y && sudo apt-get purge nginx -y`
 1. Clean house - `sudo apt-get autoremove -y`
@@ -170,20 +176,20 @@ Be sure to change the arguments in <BRACKETS> to your credentials
         ```
         [Network]
 
-        IPFoward=kernel
+        IPForward=kernel
         ```
     1. Reinstall docker-ce:
         ```
         sudo systemctl restart systemd-networkd.service
         sudo apt remove docker-ce -y
         sudo apt install docker-ce
-        sudo systemctl status docker.service
+        sudo apt install docker-ce -y
         ```
 
 1. Install docker-compose:
     1. Install pip3 and docker-compose:
         ```
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         pip3 install docker-compose
         ```
     1. Add dependencies to PATH:
@@ -192,6 +198,15 @@ Be sure to change the arguments in <BRACKETS> to your credentials
         export PATH="$HOME/.local/bin:$PATH"
         ```
     1. Check if docker-compose installed correctly - `docker-compose --version`
+
+### Optional: If using multiple USBs
+After successfully setting up 1 USB:
+1. Determine drive names and UUID - `blkid`
+1. `sudo nano /boot/firmware/cmdline.txt`
+1. Change `root=/dev/whatever` to `root=UUID=#####....` for the desired bootable drive
+1. Plug in 2nd USB drive
+1. Create mount point directory for 2nd drive - `sudo mkdir /media/usb2`
+1. Mount USB2 - `sudo mount /dev/sdb2 /media/usb2` - your device (sdb2) may be different
 
 ### Optional: Make your RPi accessible to the internet
 1. [Install Cloudflared](https://dev.to/omarcloud20/a-free-cloudflare-tunnel-running-on-a-raspberry-pi-1jid):
