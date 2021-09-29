@@ -13,7 +13,7 @@
 
 ## Automated Setup - **UNDER CONSTRUCTION**
 
-Start setup script - `sh /home/$USER/scripts/setup.sh`
+Start setup script - `sh ./scripts/setup.sh`
 
 ## Manual Setup
 
