@@ -199,7 +199,7 @@ Be sure to change the arguments in <BRACKETS> to your credentials
         ```
     1. Check if docker-compose installed correctly - `docker-compose --version`
 
-### Optional: If using multiple USBs
+### Optional: Boot from correct USB if multiple are present
 After successfully setting up 1 USB:
 1. Determine drive names and UUID - `blkid`
 1. `sudo nano /boot/firmware/cmdline.txt`
@@ -207,6 +207,14 @@ After successfully setting up 1 USB:
 1. Plug in 2nd USB drive
 1. Create mount point directory for 2nd drive - `sudo mkdir /media/usb2`
 1. Mount USB2 - `sudo mount /dev/sdb2 /media/usb2` - your device (sdb2) may be different
+
+To grant read/write access to all USB devices:
+1. `sudo nano /etc/udev/rules.d/99-perm.rules`:
+    ```
+    SUBSYSTEM=="usb", OWNER="<NON_ROOT_USER>"
+    ```
+1. Reboot - `sudo reboot`
+1. [More granular device control](https://ramonh.dev/2020/09/22/usb-device-linux-startup/)
 
 ### Optional: Make your RPi accessible to the internet
 1. [Install Cloudflared](https://dev.to/omarcloud20/a-free-cloudflare-tunnel-running-on-a-raspberry-pi-1jid):
@@ -302,6 +310,7 @@ After successfully setting up 1 USB:
 1. [Docker Flask Webcam](https://github.com/avidsapp/docker-flask-webcam.git)
 1. [Docker Flask Socket](https://github.com/avidsapp/docker-flask-react.git)
 1. [Docker Flask React Socket](https://github.com/avidsapp/docker-flask-react-socket.git)
+1. [Docker Backup](https://github.com/offen/docker-volume-backup)
 
 ## ToDo
 1. Build script
