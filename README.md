@@ -315,3 +315,4 @@ To grant read/write access to all USB devices:
 ## ToDo
 1. Build script
 1. Runtime env variables
+1. Switch nginx to traefik
