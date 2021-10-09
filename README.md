@@ -2,7 +2,7 @@
 
 ## OS Options
 - [Ubuntu 20 or 21 (arm64)](https://github.com/avidsapp/rpi-docker-server/UBUNTU.md)
-- [Raspberry Pi OS Lite (arm64)]((https://github.com/avidsapp/rpi-docker-server/RASPIOS.md))
+- [Raspberry Pi OS Lite (arm64)](https://github.com/avidsapp/rpi-docker-server/RASPIOS.md)
 
 ## Dockerized applications to add to your server
 1. [Docker WordPress](https://github.com/avidsapp/docker-wordpress.git)
