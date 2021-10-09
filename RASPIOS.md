@@ -1,5 +1,4 @@
 # Ubuntu RPi Server
----
 
 ## Features
 - RaspiOS lite (latest arm64 - [download here](https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2021-05-28/))
@@ -249,16 +248,3 @@ Be sure to change the arguments in <BRACKETS> to your credentials
 1. Git clone proxy - `git clone https://github.com/avidsapp/arm64-nginx-proxy.git proxy`
 1. Start proxy - `cd proxy && docker-compose up -d`
 1. Start other applications, but include environment variable `VIRTUAL_HOST: YOUR.DOMAIN.HERE`
-
-## Dockerized applications to add to your server
-1. [Docker WordPress](https://github.com/avidsapp/docker-wordpress.git)
-1. [Docker Owncloud](https://github.com/avidsapp/docker-owncloud.git)
-1. [Docker Uptime Monitor](https://github.com/avidsapp/docker-uptime-monitor.git)
-1. [Docker Flask API](https://github.com/avidsapp/docker-flask-api.git)
-1. [Docker Flask Webcam](https://github.com/avidsapp/docker-flask-webcam.git)
-1. [Docker Flask Socket](https://github.com/avidsapp/docker-flask-react.git)
-1. [Docker Flask React Socket](https://github.com/avidsapp/docker-flask-react-socket.git)
-
-## ToDo
-1. Build script
-1. Runtime env variables

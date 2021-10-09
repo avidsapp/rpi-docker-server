@@ -1,5 +1,4 @@
 # Ubuntu RPi Server
----
 
 ## Features
 - Ubuntu 20.04.2 LTS or 21.04
