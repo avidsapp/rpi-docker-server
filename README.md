@@ -1,4 +1,4 @@
-# Ubuntu RPi Server
+# Docker RPi Server
 
 ## OS Options
 - [Ubuntu 20 or 21 (arm64)](https://github.com/avidsapp/rpi-docker-server/UBUNTU.md)
