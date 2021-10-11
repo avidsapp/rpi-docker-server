@@ -87,6 +87,7 @@ Be sure to change the arguments in <BRACKETS> to your credentials
 1. Logout and login with the new user
 
 1. Firewall (ufw) configuration:
+    1. Install UFW - `sudo apt install ufw`
     1. Check current firewall status - `sudo ufw status numbered`
     1. Block all incoming - `sudo ufw default deny incoming`
     1. Allow all outgoing - `sudo ufw default allow outgoing`
