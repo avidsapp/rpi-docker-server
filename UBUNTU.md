@@ -105,6 +105,7 @@ Be sure to change the arguments in <BRACKETS> to your credentials
 1. Add User:
     1. `sudo adduser <USERNAME>`
     1. Add user to sudo group - `sudo usermod -aG sudo <USERNAME>`
+    1. Add user to sudo group - `sudo adduser <USERNAME> sudo`
 
 1. Set-up SSH credentials:
     1. On local machine, create SSH key pair - `ssh-keygen -f ~/path/to/your/key -t ecdsa -b 521`
@@ -188,7 +189,7 @@ Be sure to change the arguments in <BRACKETS> to your credentials
 1. Install docker-compose:
     1. Install pip3 and docker-compose:
         ```
-        sudo apt install python3-pip
+        sudo apt install python3-pip -y
         pip3 install docker-compose
         ```
     1. Add dependencies to PATH:
