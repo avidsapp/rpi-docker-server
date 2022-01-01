@@ -1,5 +1,14 @@
 # Docker RPi Server
 
+## Usage
+
+Setup:
+```
+git clone https://github.com/avidsapp/rpi-docker-server.git
+cd rpi-docker-server
+./scripts/setup.sh
+```
+
 ## OS Options
 - [Ubuntu 20 or 21 (arm64)](https://github.com/avidsapp/rpi-docker-server/blob/master/UBUNTU.md)
 - [Raspberry Pi OS Lite (arm64)](https://github.com/avidsapp/rpi-docker-server/blob/master/RASPIOS.md)
