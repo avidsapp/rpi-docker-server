@@ -24,6 +24,7 @@ cd rpi-docker-server
 1. [Docker Backup](https://github.com/offen/docker-volume-backup)
 
 ## ToDo
+1. ~~Reboot scripts~~
 1. Build script
 1. Runtime env variables
 1. Migrate Nginx to Traefik
